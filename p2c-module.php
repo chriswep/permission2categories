@@ -91,10 +91,19 @@ class p2c_category_permission
 	 */
 	function has_permit($categoryid) 
 	{
+		require_once QA_INCLUDE_DIR.'app/users.php';
 		$permit_level = $this->category_permit_level($categoryid);
-		if ( qa_get_logged_in_level() >= $permit_level || $permit_level == 0 )
+		if ( qa_get_logged_in_level() >= $permit_level || $permit_level == 0 ) {
 			return true;
-		else
-			return false;
+		}
+		else {
+			$catLevels = qa_get_logged_in_levels();
+			$userCatLevel = null;
+			foreach($catLevels as $catLevel) {
+				if($catLevel['entitytype'] === 'C' && $catLevel['entityid'] === $categoryid) $userCatLevel = $catLevel['level'];
+			}
+			if($userCatLevel !== null && $userCatLevel >= $permit_level) return true;
+			else return false;
+		}
 	}
 }
